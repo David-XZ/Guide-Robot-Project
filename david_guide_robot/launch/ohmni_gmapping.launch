@@ -1,0 +1,8 @@
+<launch>
+
+  <master auto="start"/>
+  
+  <node name="gmapping" pkg="gmapping" type="slam_gmapping">
+    <remap from="scan" to="/scan"/>
+  </node>
+</launch>

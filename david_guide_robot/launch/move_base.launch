@@ -1,0 +1,38 @@
+<launch>
+
+  <master auto="start"/>
+  
+  <!-- Transform -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_to_base_footprint" args="0 0 0 0 0 0 base_link depth_camera_link 100"/>
+
+  <!-- Depthimage to LaserScan -->
+  <node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan">
+    <param name="output_frame_id" value="depth_camera_link"/>
+    <param name="scan_height" value="1"/>
+    <param name="scan_time" value="0.2"/>
+    <param name="range_min" value="0.2"/>
+    <param name="range_max" value="4.0"/>
+    <remap from="image" to="/depth_to_rgb/image_raw"/>
+    <remap from="camera_info" to="/depth_to_rgb/camera_info"/>
+  </node>
+  
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find ohmni_2dnav)/map.yaml">
+    <param name="frame_id" value="map"/>
+  </node>
+  
+  <!-- Run AMCL -->
+  <include file="$(find amcl)/examples/amcl_diff.launch"/>
+  
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  
+    <remap from="/cmd_vel" to="/tb_cmd_vel"/>
+    
+    <rosparam file="$(find ohmni_2dnav)/params/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find ohmni_2dnav)/params/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find ohmni_2dnav)/params/local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find ohmni_2dnav)/params/global_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find ohmni_2dnav)/params/base_local_planner_params.yaml" command="load"/>
+  </node>
+  
+</launch>

@@ -1,0 +1,22 @@
+<launch>
+
+  <master auto="start"/>
+  
+  <!-- Transform -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="camera_to_base_footprint" args="0 0 0 0 0 0 camera_base footprint 100"/> -->
+  
+  <!-- Run AMCL -->
+  <include file="$(find amcl)/examples/amcl_diff.launch"/>
+  
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  
+    <remap from="/cmd_vel" to="/tb_cmd_vel"/>
+    <remap from="map" to="/rtabmap/proj_map"/>
+    
+    <rosparam file="$(find ohmni_2dnav)/params/rtabmap_nav_costmap_common_params.yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find ohmni_2dnav)/params/rtabmap_nav_costmap_common_params.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find ohmni_2dnav)/params/rtabmap_nav_local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find ohmni_2dnav)/params/rtabmap_nav_global_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find ohmni_2dnav)/params/rtabmap_nav_base_local_planner_params.yaml" command="load"/>
+  </node>
+</launch>
